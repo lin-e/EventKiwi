@@ -1,0 +1,6 @@
+[submodule "EventKiwi-Backend"]
+	path = EventKiwi-Backend
+	url = git@github.com:lin-e/EventKiwi-Backend.git
+[submodule "EventKiwi-Frontend"]
+	path = EventKiwi-Frontend
+	url = git@github.com:lin-e/EventKiwi-Frontend.git
