@@ -1,0 +1,271 @@
+\documentclass[a4paper, 10pt]{article}
+
+% packages
+\usepackage{amssymb}
+\usepackage[fleqn]{mathtools}
+\usepackage{tikz}
+\usepackage{enumerate}
+\usepackage{bussproofs}
+\usepackage{xcolor}
+\usepackage[margin=1.3cm]{geometry}
+\usepackage{logicproof}
+\usepackage{diagbox}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{lstautogobble}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{tipa}
+\usepackage{pgfplots}
+\usepackage{adjustbox}
+\usepackage{microtype}
+
+% tikz libraries
+\usetikzlibrary{
+    decorations.pathreplacing,
+    arrows,
+    shapes.gates.logic.US,
+    circuits.logic.US,
+    calc,
+    automata,
+    positioning,
+    intersections
+}
+
+\pgfplotsset{compat=1.16}
+
+\pgfmathdeclarefunction{gauss}{2}{%
+  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
+}
+
+\allowdisplaybreaks % allow environments to break
+\setlength\parindent{0pt} % no indent
+
+% shorthand for verbatim
+% this clashes with logicproof, so maybe fix this at some point?
+\catcode`~=\active
+\def~#1~{\texttt{#1}}
+
+% code listing
+\lstdefinestyle{main}{
+    numberstyle=\tiny,
+    breaklines=true,
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=2,
+    numbers=left,
+    basicstyle=\ttfamily,
+    columns=fixed,
+    fontadjust=true,
+    basewidth=0.5em,
+    autogobble,
+    xleftmargin=3.0ex,
+    mathescape=true
+}
+\newcommand{\dollar}{\mbox{\textdollar}} %
+\lstset{style=main}
+
+% augmented matrix
+\makeatletter
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+\hskip -\arraycolsep
+\let\@ifnextchar\new@ifnextchar
+\array{#1}}
+\makeatother
+
+% ceiling / floor
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+
+% custom commands
+\newcommand{\indefint}[2]{\int #1 \, \mathrm{d}#2}
+\newcommand{\defint}[4]{\int_{#1}^{#2} #3 \, \mathrm{d}#4}
+\newcommand{\pdif}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dif}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\limit}[2]{\raisebox{0.5ex}{\scalebox{0.8}{$\displaystyle{\lim_{#1 \to #2}}$}}}
+\newcommand{\limitsup}[2]{\raisebox{0.5ex}{\scalebox{0.8}{$\displaystyle{\limsup_{#1 \to #2}}$}}}
+\newcommand{\summation}[2]{\sum\limits_{#1}^{#2}}
+\newcommand{\product}[2]{\prod\limits_{#1}^{#2}}
+\newcommand{\intbracket}[3]{\left[#3\right]_{#1}^{#2}}
+\newcommand{\laplace}{\mathcal{L}}
+\newcommand{\fourier}{\mathcal{F}}
+\newcommand{\mat}[1]{\boldsymbol{#1}}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\newcommand{\rowt}[1]{\begin{bmatrix}
+    #1
+\end{bmatrix}^\top}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\newcommand{\lto}[0]{\leadsto\ }
+
+\newcommand{\ulsmash}[1]{\underline{\smash{#1}}}
+
+\newcommand{\powerset}[0]{\wp}
+\renewcommand{\emptyset}[0]{\varnothing}
+
+\makeatletter
+\newsavebox{\@brx}
+\newcommand{\llangle}[1][]{\savebox{\@brx}{\(\m@th{#1\langle}\)}%
+  \mathopen{\copy\@brx\kern-0.5\wd\@brx\usebox{\@brx}}}
+\newcommand{\rrangle}[1][]{\savebox{\@brx}{\(\m@th{#1\rangle}\)}%
+  \mathclose{\copy\@brx\kern-0.5\wd\@brx\usebox{\@brx}}}
+\makeatother
+\newcommand{\lla}{\llangle}
+\newcommand{\rra}{\rrangle}
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+\newcommand{\crnr}[1]{\text{\textopencorner} #1 \text{\textcorner}}
+\newcommand{\bnfsep}[0]{\ |\ }
+\newcommand{\concsep}[0]{\ ||\ }
+
+\newcommand{\axiom}[1]{\AxiomC{#1}}
+\newcommand{\unary}[1]{\UnaryInfC{#1}}
+\newcommand{\binary}[1]{\BinaryInfC{#1}}
+\newcommand{\trinary}[1]{\TrinaryInfC{#1}}
+\newcommand{\quaternary}[1]{\QuaternaryInfC{#1}}
+\newcommand{\quinary}[1]{\QuinaryInfC{#1}}
+\newcommand{\dproof}[0]{\DisplayProof}
+\newcommand{\llabel}[1]{\LeftLabel{\scriptsize #1}}
+\newcommand{\rlabel}[1]{\RightLabel{\scriptsize #1}}
+
+\newcommand{\ttbs}{\char`\\}
+\newcommand{\lrbt}[0]{\ \bullet\ }
+
+% colours
+\newcommand{\violet}[1]{\textcolor{violet}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\teal}[1]{\textcolor{teal}{#1}}
+
+% reasoning proofs
+\usepackage{ltablex}
+\usepackage{environ}
+\keepXColumns
+\NewEnviron{reasoning}{
+    \begin{tabularx}{\textwidth}{rlX}
+        \BODY
+    \end{tabularx}
+}
+\newcommand{\proofline}[3]{$(#1)$ & $#2$ & \hfill #3 \smallskip}
+\newcommand{\proofarbitrary}[1]{& take arbitrary $#1$ \smallskip}
+\newcommand{\prooftext}[1]{\multicolumn{3}{l}{#1} \smallskip}
+\newcommand{\proofmath}[3]{$#1$ & = $#2$ & \hfill #3 \smallskip}
+\newcommand{\prooftherefore}[1]{& $\therefore #1$ \smallskip}
+\newcommand{\proofbc}[0]{\prooftext{\textbf{Base Case}}}
+\newcommand{\proofis}[0]{\prooftext{\textbf{Inductive Step}}}
+
+% ER diagrams
+\newcommand{\nattribute}[4]{
+    \node[draw, state, inner sep=0cm, minimum size=0.2cm, label=#3:{#4}] (#1) at (#2) {};
+}
+\newcommand{\mattribute}[4]{
+    \node[draw, state, accepting, inner sep=0cm, minimum size=0.2cm, label=#3:{#4}] (#1) at (#2) {};
+}
+\newcommand{\dattribute}[4]{
+    \node[draw, state, dashed, inner sep=0cm, minimum size=0.2cm, label=#3:{#4}] (#1) at (#2) {};
+}
+\newcommand{\entity}[3]{
+    \node[] (#1-c) at (#2) {#3};
+    \node[inner sep=0cm] (#1-l) at ($(#1-c) + (-1, 0)$) {};
+    \node[inner sep=0cm] (#1-r) at ($(#1-c) + (1, 0)$) {};
+    \node[inner sep=0cm] (#1-u) at ($(#1-c) + (0, 0.5)$) {};
+    \node[inner sep=0cm] (#1-d) at ($(#1-c) + (0, -0.5)$) {};
+    \draw
+    ($(#1-c) + (-1, 0.5)$) -- ($(#1-c) + (1, 0.5)$) -- ($(#1-c) + (1, -0.5)$) -- ($(#1-c) + (-1, -0.5)$) -- cycle;
+}
+\newcommand{\relationship}[3]{
+    \node[] (#1-c) at (#2) {#3};
+    \node[inner sep=0cm] (#1-l) at ($(#1-c) + (-1, 0)$) {};
+    \node[inner sep=0cm] (#1-r) at ($(#1-c) + (1, 0)$) {};
+    \node[inner sep=0cm] (#1-u) at ($(#1-c) + (0, 1)$) {};
+    \node[inner sep=0cm] (#1-d) at ($(#1-c) + (0, -1)$) {};
+    \draw
+    ($(#1-c) + (-1, 0)$) -- ($(#1-c) + (0, 1)$) -- ($(#1-c) + (1, 0)$) -- ($(#1-c) + (0, -1)$) -- cycle;
+}
+
+% AVL Trees
+\newcommand{\avltri}[4]{
+    \draw ($(#1)$) -- ($(#1) + #4*(0.5, -1)$) -- ($(#1) + #4*(-0.5, -1)$) -- cycle;
+    \node at ($(#1) + #4*(0, -1) + (0, 0.5)$) {#3};
+    \node at ($(#1) + #4*(0, -1) + (0, -0.5)$) {#2};
+}
+
+% RB Trees
+\tikzset{rbtr/.style={inner sep=2pt, circle, draw=black, fill=red}}
+\tikzset{rbtb/.style={inner sep=2pt, circle, draw=black, fill=black}}
+
+% actual document
+\begin{document}
+    \section*{DRP Group 31 - Copyright (and Legal) Report}
+        \subsection*{Third-Party Resources}
+            \begin{itemize}
+                \itemsep0em
+                \item \textit{``The Glenesk Hotel's Malt Bar''} - Adam Wilson (Unsplash) \hfill \textbf{leaflet}
+                \item \textit{``iPhone X'' and ``iMac'' Device Mockups} - MockUPhone (CC BY 3.0) \hfill \textbf{leaflet}
+                \item \textit{Various Icons} - FontAwesome (CC BY 4.0) \hfill \textbf{leaflet}
+                \item \textit{Convention Hall} - David Nicolai (Unsplash) \hfill \textbf{final presentation}
+                \item \textit{South Kensington Campus, from Above} - Thomas Angus (Imperial) \hfill \textbf{final presentation}
+            \end{itemize}
+            The \textit{Unsplash} license allows for free use of photos for both commercial and non-commercial purposes, without permission.
+            This is with the condition that the images themselves cannot be sold or redistributed.
+            \textit{Creative Commons Attribution 4.0 International (CC BY 4.0)} and \textit{Creative Commons Attribution 3.0 Unported (CC BY 3.0)} both allow for the content to be built upon for any purpose (including commercial) - provided that attribution is given, and any changes are indicated.
+            Finally, the license provided by the college Asset Library allows use to ``further the College's mission'', with appropriate credit.
+        \subsection*{Third-Party Packages}
+            \begin{itemize}
+                \itemsep0em
+                \item \textbf{MIT License}
+                    \begin{itemize}
+                        \item \textbf{Backend}
+
+                            ~body-parser~, ~cors~, ~express~, ~pg-promise~, ~jimp~, ~ts-node~, ~@types/cors~, ~@types/express~, ~@types/node~, ~mocha~, ~chai~, ~@types/chai~, ~@types/mocha~
+                        \item \textbf{Frontend}
+
+                            ~date-fns~, ~fetch-mock~, ~ionic~, ~ionicons~, ~node-fetch~, ~react~, ~react-dom~, ~react-grid-system~, ~react-redux~, ~react-router~, ~react-router-dom~, ~react-scripts~, ~redux~, ~redux-devtools-extension~, ~redux-mock-store~, ~redux-thunk~, ~reselect~, ~@capacitor/*~, ~@fortawesome/*~, ~@ionic/*~, ~@testing-library/*~
+                    \end{itemize}
+                \item \textbf{Apache License, Version 2.0}
+                    \begin{itemize}
+                        \item \textbf{Backend} \hfill ~aws-sdk~, ~typescript~
+                        \item \textbf{Frontend} \hfill ~typescript~
+                    \end{itemize}
+                \item \textbf{BSD-3-Clause License}
+                    \begin{itemize}
+                        \item \textbf{Backend} \hfill ~sinon~
+                    \end{itemize}
+                \item \textbf{ISC License}
+                    \begin{itemize}
+                        \item \textbf{Frontend} \hfill ~react-microsoft-login~
+                    \end{itemize}
+            \end{itemize}
+        \subsection*{License Legal Implications}
+            All four licences above give us permission to use the library commercially, modify it and distribute it.
+            They all also require us to include the full text of the licence and also the copyright. We also cannot hold the contributors of the libraries liable for anything.
+            The MIT License also gives us permission to sublicense and use for private use.
+            The Apache License, Version 2.0 also gives us permission to sublicense, use for private use and place a warranty, but the original software owner can revoke our license in the event that we institute patent litigation.
+            We must also include the library notice (if any) and state changes made (if any).
+            The licence does not provide us permission to use any trademarks of the Licensor.
+            The BSD-3-Clause License also gives us permission to place a warranty.
+            The licence does not allow us to use the name of the copyright holder nor the names of any contributors to endorse or promote our product without specific written permission.
+        \subsection*{Wider Legal Implications}
+            \begin{itemize}
+                \itemsep0em
+                \item \textbf{Copyright Abuse}
+
+                    A central functionality of the application is based upon societies being able to upload content in the form of images visible for an event, posts and descriptions on an event, as well as any files they upload as a resource attached to an event.
+                    These could all potentially be instances in which users themselves could upload content which would violate the copyright of that piece of work, which we then store on our database / S3 bucket.
+                    Thus we have created an email (~support@drp.social~) where reports can be sent for DMCA takedown requests, or any other issues.
+                    As all content uploaded is tied to a user account, which has an associated email address, we are able to contact the user who uploaded the content to inform them of the request and possibly take action if the platform is being abused.
+                \item \textbf{Hate Speech and Moderation}
+
+                    As is the responsibility of any platform-creator with the functionality for users to post content, we understand that there is a possibility for events to be created, posts made or resources uploaded that incites violence, promotes hate speech or other illegal activities.
+                    Under Article 14 of the e-Commerce Directive, we as a platform are not responsible for the user-generated content and its legality, as long as we are able to act promptly to remove/disable access to it.
+                    Again, we comply with this by having an email that users can use to inform us of any content that fits these categories, or that they are concerned about.
+                \item \textbf{GDPR Compliance}
+
+                    The legal basis upon which we are processing the user’s data is with Article 6(1)(a) and Article 6(1)(f), requiring the consent for the processing of the user’s data for one or more specific purposes and that the processing is necessary for the purposes of the legitimate interests pursued by (us) the controller. The former is fulfilled by consent given when the user first signs in via the Microsoft log in, they give consent to the basic information of their name and email address to be given to the application, with the use used in the privacy policy at (~static.drp.social/privacy~).
+                    The personal data is only used for the purposes of displaying basic information to the user on their profile, and the email is kept to be able to contact them in the case of abuse of the platform, or other request.
+                    No other transfers are made.
+                    The personal data we use is stored on our secured database, and the only communication of a user’s personal data is to sessions logged in with that user’s account over an encrypted channel (HTTP over SSL), and uploaded resources are encrypted with AES-256.
+                    User requests under the rights given under chapter 3 of GDPR can be fulfilled via an email to ~support@drp.social~.
+            \end{itemize}
+\end{document}
